@@ -24,12 +24,12 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
   int selectedIndex = 0;
-  late Stream<QuerySnapshot> todoStream;
+  late Stream<List<Todo>> todoStream;
 
   @override
   void initState() {
     super.initState();
-    todoStream = FirebaseApi.readTodos();
+    todoStream = FirebaseApi.readTodos2();
   }
 
   @override
@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
 
-      body: StreamBuilder<QuerySnapshot>(
+      body: StreamBuilder<List<Todo>>(
         stream: todoStream,
         builder: (context, snapshot) { 	
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -63,14 +63,20 @@ class _HomePageState extends State<HomePage> {
               return buildText(snapshot.error.toString());
             }
             else if (snapshot.hasData) {
+              final provider = context.read<TodosProvider>();
+              final List<Todo>? todo = snapshot.data;
+              provider.setTodos(todo!);
+              return tabs[selectedIndex];
+
+              /* ------- Using the ReadTodo Function -------
+              final model = context.read<TodosProvider>();
               final List<Todo> todo = snapshot.data!.docs.map((DocumentSnapshot document) {
                 Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
                   return Todo.fromJson(data);
               }).toList();
 
-              final model = context.read<TodosProvider>();
               model.setTodos(todo);
-              return tabs[selectedIndex];
+              return tabs[selectedIndex]; */
             }
             else {
               return buildText("Empty Data");
@@ -119,9 +125,10 @@ class _HomePageState extends State<HomePage> {
   Widget buildText(String text) => Center(
     child: Text(
       text,
+      textAlign: TextAlign.center,
       style: const TextStyle(
         fontSize: 24, 
-        color: Colors.white
+        color: Colors.black
       ),
     ),
   );

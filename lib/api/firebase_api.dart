@@ -11,7 +11,8 @@ class FirebaseApi {
       todo.id = docTodo.id;
       await docTodo.set(todo.toJson());
       return docTodo.id;
-    } catch (e) {
+    } 
+    catch (e) {
       return "ERROR";
     }
   }
